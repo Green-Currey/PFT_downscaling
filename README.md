@@ -3,7 +3,7 @@
 
 ### The process to downscale the LPJ data to MODIS Type 5 PFT data is as follows:
 1. Divide the globe into chunks that contain small enough chunks to be written into the netcdf format but not so small that it takes too long for the SLURM script to run (the limit is 12 hours).
-    1. **NOTE**:optimal size seems to be 500km x 500km.
+    1. **NOTE**: optimal size seems to be 500km x 500km.
 2. Loop through each 1km2 grid cell and examine the MODIS PFT value.
     1. Check to see if the MODIS PFT value matches the LPJ PFT value.
     2. If a match, extract the spectra for the corresponding LPJ grid cell.
