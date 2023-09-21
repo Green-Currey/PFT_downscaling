@@ -15,6 +15,8 @@
 ### Files and scripts relevant to this process:
 - _execute_LPJ_downscaling.sh_ -- bash script to execute the Rscript and pass necessary file paths and parameters.
 - _LPJ_PFT_downscaling.R_ -- contains the code that does the looping through each grid cell and writing to the ncdf file.
+    - _LPJ_PFT_downscaling_continental.R_ -- same as above but divides the MODIS PFT map into 6 continental files (Eurasia, Africa, South America, Antarctica, Australia, North America). Each is output as a separate NCDF.
+    - *NOTE*: This is in development as dividing by continent alters the grid size.
 - _paintByPFT.R_ -- contains all the functions called in the LPJ_PFT_downscaling.R proceedure. 
 
 ### More information: 
