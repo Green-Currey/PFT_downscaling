@@ -40,14 +40,16 @@ lut.array <- nc_open(file.path(inpath, 'LPJ_monthly_PFT_reflectance_LUT.nc')) %>
 lpj.lons <- seq(-179.75, 179.75, 0.5)
 lpj.lats <- seq(89.75, -89.75, -0.5)
 
-# Continental data --------------------------------------------------------
 
+
+# Continental data --------------------------------------------------------
 sPDF <- getMap()
 # continents <- na.exclude(unique(sPDF$continent)) # Options are: Eurasia, Africa, South America, Antarctica, Australia, North America (Antarctica is excluded).
 cont.vect <- sPDF["continent"]
 sub <-  cont.vect[!is.na(cont.vect$continent),]
-sub <- sub[sub]
-pft.raster <- rast(mask(pft.raster, sub))
+sub <- sub[sub$continent=='North America', ] # this could be input from the bash script
+pft.raster <- rast(raster::mask(pft.raster, sub))
+
 
 print("Data read in.")
 
