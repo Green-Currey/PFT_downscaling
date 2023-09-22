@@ -2,6 +2,7 @@ library(ncdf4)
 library(terra)
 library(tidyverse)
 library(readr)
+library(rworldmap)
 source(file.path(Sys.getenv("scriptspath"), 'paintByPFT.R'))
 
 
@@ -41,10 +42,10 @@ lpj.lats <- seq(89.75, -89.75, -0.5)
 # Continental data --------------------------------------------------------
 
 sPDF <- vect(getMap())
-continents <- na.exclude(unique(sPDF$continent)) 
+# continents <- na.exclude(unique(sPDF$continent)) # Options are: Eurasia, Africa, South America, Antarctica, Australia, North America (Antarctica is excluded).
 cont.vect <- sPDF["continent"]
 sub <- cont.vect[cont.vect$continent==continent, ]
-pft.raster <- crop(pft.raster, sub)
+pft.raster <- mask(pft.raster, sub)
 
 print("Data read in.")
 
