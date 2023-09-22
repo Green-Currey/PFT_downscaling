@@ -1,44 +1,47 @@
 # Load the ncdf4 package
+source('~/R/clean.R')
 library(ncdf4)
 library(terra)
 library(tidyverse)
 library(readr)
-source(file.path(Sys.getenv("scriptspath"), 'paintByPFT.R'))
-
+library(rworldmap)
+source('~/Current Projects/SBG/LPJ/PFT_downscaling/scripts/paintByPFT.R')
 
 # paths -------------------------------------------------------------------
-lpjpath <- Sys.getenv("lpjpath")
-inpath <- Sys.getenv("inpath")
-outpath <- Sys.getenv("outpath")
-outname <- Sys.getenv("outname")
-refl_stream <- Sys.getenv("reflectanceType")
+lpj.path <- file.path('~/Current Projects/SBG/LPJ/Reflectance_Data/version2/')
+dp <- '~/Current Projects/SBG/LPJ/PFT_downscaling/data/'
+
 
 # parameters --------------------------------------------------------------
 wl <- seq(400,2500,10)
 na_val <- -9999
 COMPRESS_LEVEL <- 5
-Year <- Sys.getenv("year")
-in_version <- Sys.getenv("version")
 
 
-# LPJ Data --------------------------------------------------------------------
-lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream,'_',in_version,'_m_',Year,'.nc'))) %>%
-    ncvar_get(refl_stream) %>%
+
+# Data --------------------------------------------------------------------
+
+lpj.array <- nc_open(file.path(lpj.path, 'lpj-prosail_levelC_DR_Version021_m_2020.nc')) %>%
+    ncvar_get('DR') %>%
     aperm(c(2,1,3,4))
 
 
 
 # The important raster ----------------------------------------------------
- pft.raster <- rast(file.path(inpath,'MODIS_PFT_Type_5_clean_crop.tif'))
+ pft.raster <- rast(file.path(dp,'MODIS_PFT_Type_5_clean_crop.tif'))
+
+# pft.raster <- rast(file.path(dp,'test_-76.5045_45.0045.tif')) # great lakes
+# pft.raster <- rast(file.path(dp,'test_18.8955_41.4045.tif')) # italy
+# pft.raster <- rast(file.path(dp, 'test_148.4955_-17.9955.tif')) # austrailia
+
 
 # Other data --------------------------------------------------------------
-lpj.fpc.array <- max.FPC(list.files(lpjpath, pattern = '_fpc.nc', full.names = T)) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
-c3c4.raster <- rast(file.path(inpath, 'Osborne_C3C4_raster_1km.tif'))
-lut.array <- nc_open(file.path(inpath, 'LPJ_monthly_PFT_reflectance_LUT.nc')) %>% ncvar_get('LUT')
+c3c4.raster <- rast(file.path(dp, 'Osborne_C3C4_raster_1km.tif'))
+lpj.fpc.array <- max.FPC(list.files(dp, pattern = '*_fpc.nc', full.names = T)) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
+lut.array <- nc_open(file.path(dp, 'LPJ_monthly_PFT_reflectance_LUT.nc')) %>% ncvar_get('LUT')
 lpj.lons <- seq(-179.75, 179.75, 0.5)
 lpj.lats <- seq(89.75, -89.75, -0.5)
 
-print("Data read in.")
 
 
 # Create NCDF ---------------------------------------------------------------
@@ -64,17 +67,19 @@ nc_var <- ncvar_def(varname_nc, varUnit,
                     shuffle = T,
                     chunksize = NA)
 
-nc_name <- paste0(outpath, outname)
+nc_name <- paste0(outpath, 'test.nc')
 nc_out <- nc_create(nc_name, nc_var)
 print('NC created.')
 
 
 
-# define chunk size ----------------------------------------------
-# Define chunk size
-chunksize = as.numeric(Sys.getenv("chunksize"))
-chunk_size <- c(chunksize, chunksize)
+# define grid and chunk size ----------------------------------------------
 
+# num_grids <- 100
+# grid <- global.grid(num_grids)
+
+# Define chunk size
+chunk_size <- c(500,500)
 
 
 # Loop through chunks. ---------------------------------------------------------
@@ -173,3 +178,11 @@ Sys.time()-t.start
 print("Percent of spectra directly extracted from LPJ: ")
 print(counter/sum(ga>1, na.rm = T)*100)
 
+
+# testing output ----------------------------------------------------------
+
+test <- nc_open(nc_name); test;
+test <- test %>% ncvar_get('DR'); dim(test)
+test <- rast(test[,,,7])/10000
+plot(test$lyr.35, main = '740 nm')
+plotRGB(test, r = which(wl==660), g = which(wl==510), b = which(wl==450), stretch = 'lin')

@@ -1,34 +1,3 @@
-global.grid <- function(num_grids = 100, globe= c(-180, 180, -90, 90)) {
-    require(terra)
-    # Cell dimensions
-    grid.size <- num_grids/10
-    grids <- list()
-    cell.id <- integer(0)
-    
-    # Initialize cell counter
-    cnt <- 1
-    
-    dx <- (globe[2] - globe[1]) / grid.size
-    dy <- (globe[4] - globe[3]) / grid.size * -1
-    # Loop through rows and columns to create lines
-    for (row in seq(from=globe[4], by=dy, length.out=grid.size)) {
-        for (col in seq(from=globe[1], by=dx, length.out=grid.size)) {
-            x <- c(col, col + dx, col + dx, col, col)
-            y <- c(row, row, row + dy, row + dy, row)
-            grids <- c(grids, list(matrix(c(x, y), ncol=2)))
-            cell.id <- c(cell.id, cnt)
-            cnt <- cnt + 1
-        }
-    }
-    
-    # Create SpatVector of type lines
-    cell.grid <- vect(grids, type="polygon", crs = 'EPSG:4326')
-    
-    # Add attributes to SpatVector
-    cell.grid$cell <- cell.id
-    return(cell.grid)
-}
-
 paint.by.pft <- function(match.lat, match.lon, modis.pft, lpj.pft, grass.pft, lat, lpj, lut, wl.dim = 211, na.val = -9999, to.int = 10000) {
     
     # modis.pft <- modis.pft.index
@@ -211,8 +180,46 @@ max.FPC <- function(fpc.nc) {
     
 }
 
+print.message <- function(text, more.text=NULL) {
+    timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+    message(paste("[", timestamp, "]", text, more.text))
+}
+
+
 # Old ---------------------------------------------------------------------
-# 
+
+
+# global.grid <- function(num_grids = 100, globe= c(-180, 180, -90, 90)) {
+#     require(terra)
+#     # Cell dimensions
+#     grid.size <- num_grids/10
+#     grids <- list()
+#     cell.id <- integer(0)
+#     
+#     # Initialize cell counter
+#     cnt <- 1
+#     
+#     dx <- (globe[2] - globe[1]) / grid.size
+#     dy <- (globe[4] - globe[3]) / grid.size * -1
+#     # Loop through rows and columns to create lines
+#     for (row in seq(from=globe[4], by=dy, length.out=grid.size)) {
+#         for (col in seq(from=globe[1], by=dx, length.out=grid.size)) {
+#             x <- c(col, col + dx, col + dx, col, col)
+#             y <- c(row, row, row + dy, row + dy, row)
+#             grids <- c(grids, list(matrix(c(x, y), ncol=2)))
+#             cell.id <- c(cell.id, cnt)
+#             cnt <- cnt + 1
+#         }
+#     }
+#     
+#     # Create SpatVector of type lines
+#     cell.grid <- vect(grids, type="polygon", crs = 'EPSG:4326')
+#     
+#     # Add attributes to SpatVector
+#     cell.grid$cell <- cell.id
+#     return(cell.grid)
+# }
+
 # coord.array <- function(x, extent) {
 #     require(terra)
 #     

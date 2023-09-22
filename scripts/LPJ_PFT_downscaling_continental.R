@@ -1,81 +1,54 @@
-# Load the ncdf4 package
-
-
-
-source('~/R/clean.R')
 library(ncdf4)
 library(terra)
 library(tidyverse)
 library(readr)
-library(rworldmap)
-source('~/Current Projects/SBG/LPJ/PFT_downscaling/scripts/paintByPFT.R')
+source(file.path(Sys.getenv("scriptspath"), 'paintByPFT.R'))
 
 
 # paths -------------------------------------------------------------------
-lpj.path <- file.path('~/Current Projects/SBG/LPJ/Reflectance_Data/version2/')
-dp <- '~/Current Projects/SBG/LPJ/PFT_downscaling/data/'
-
+lpjpath <- Sys.getenv("lpjpath")
+inpath <- Sys.getenv("inpath")
+outpath <- Sys.getenv("outpath")
+outname <- Sys.getenv("outname")
+refl_stream <- Sys.getenv("reflectanceType")
+continent <- Sys.getenv('continent')
 
 # parameters --------------------------------------------------------------
 wl <- seq(400,2500,10)
 na_val <- -9999
 COMPRESS_LEVEL <- 5
+Year <- Sys.getenv("year")
+in_version <- Sys.getenv("version")
 
 
-
-# Data --------------------------------------------------------------------
-
-lpj.array <- nc_open(file.path(lpj.path, 'lpj-prosail_levelC_DR_Version021_m_2020.nc')) %>%
-    ncvar_get('DR') %>%
+# LPJ Data --------------------------------------------------------------------
+lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream,'_',in_version,'_m_',Year,'.nc'))) %>%
+    ncvar_get(refl_stream) %>%
     aperm(c(2,1,3,4))
 
 
 
 # The important raster ----------------------------------------------------
-
-
-pft.raster <- rast(file.path(dp,'MODIS_PFT_Type_5_clean_crop.tif'))
-# 
-# r_global <- rast(nrows=20000, ncols=40000,
-#                  ext(-180,180,-90,90),
-#                  crs=crs("+init=epsg:4326"))
-# 
-# r <- pft.raster %>% resample(r_global, threads = T, method = 'near')
-# plot(r)
-# writeRaster(r, file.path(dp,'MODIS_PFT_Type_5_clean_crop.tif'), overwrite = T)
-# xmin <- xFromCol(pft.raster, 21550)
-# xmax <- xFromCol(pft.raster, 22050)
-# ymax <- yFromRow(pft.raster, 5400)
-# ymin <- yFromRow(pft.raster, 5900)
-# e <- ext(xmin, xmax, ymin, ymax)
-# pft.raster1 <- pft.raster %>% crop(e, filename = paste0(dp, 'test_',paste0(xmax,'_',ymax),'.tif'), overwrite = T); plot(pft.raster1)
-
-
-# pft.raster <- rast(file.path(dp,'test_-76.5045_45.0045.tif')) # great lakes
-# pft.raster <- rast(file.path(dp,'test_18.8955_41.4045.tif')) # italy
-# pft.raster <- rast(file.path(dp, 'test_148.4955_-17.9955.tif')) # austrailia
-
+pft.raster <- rast(file.path(inpath,'MODIS_PFT_Type_5_clean_crop.tif'))
 
 # Other data --------------------------------------------------------------
-
-c3c4.raster <- rast(file.path(dp, 'Osborne_C3C4_raster_1km.tif'))
-lpj.fpc.array <- max.FPC(file.path(dp, 'LPJ_maxfpc_v2.0_fpc.nc')) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
-lut.array <- nc_open(file.path(dp, 'LPJ_monthly_PFT_reflectance_LUT.nc')) %>% ncvar_get('LUT')
+lpj.fpc.array <- max.FPC(list.files(lpjpath, pattern = '_fpc.nc', full.names = T)) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
+c3c4.raster <- rast(file.path(inpath, 'Osborne_C3C4_raster_1km.tif'))
+lut.array <- nc_open(file.path(inpath, 'LPJ_monthly_PFT_reflectance_LUT.nc')) %>% ncvar_get('LUT')
 lpj.lons <- seq(-179.75, 179.75, 0.5)
 lpj.lats <- seq(89.75, -89.75, -0.5)
-
 
 # Continental data --------------------------------------------------------
 
 sPDF <- vect(getMap())
 continents <- na.exclude(unique(sPDF$continent)) 
 cont.vect <- sPDF["continent"]
-sub <- cont.vect[cont.vect$continent=='North America', ]
+sub <- cont.vect[cont.vect$continent==continent, ]
 pft.raster <- crop(pft.raster, sub)
 
+print("Data read in.")
 
-# Create NCDF --===---------------------------------------------------------
-
+# Create NCDF ---------------------------------------------------------------
 # Create dimensions
 lons <- seq(ext(pft.raster)[1], ext(pft.raster)[2], length.out = ncol(pft.raster))
 lats <- seq(ext(pft.raster)[4], ext(pft.raster)[3], length.out = nrow(pft.raster))
@@ -98,10 +71,15 @@ nc_var <- ncvar_def(varname_nc, varUnit,
                     shuffle = T,
                     chunksize = NA)
 
-nc_name <- paste0(dp,'NA2.nc')
+nc_name <- paste0(outpath, outname)
 nc_out <- nc_create(nc_name, nc_var)
-print('nc created')
+print('NC created.')
 
+
+# define chunk size ----------------------------------------------
+# Define chunk size
+chunksize = as.numeric(Sys.getenv("chunksize"))
+chunk_size <- c(chunksize, chunksize)
 
 
 # define grid and chunk size ----------------------------------------------
@@ -110,7 +88,7 @@ print('nc created')
 # grid <- global.grid(num_grids)
 
 # Define chunk size
-chunk_size <- c(100, 100)
+chunk_size <- c(800, 800)
 
 
 # Loop through chunks. ---------------------------------------------------------
