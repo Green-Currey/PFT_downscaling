@@ -5,6 +5,7 @@ library(terra)
 library(tidyverse)
 library(readr)
 library(rworldmap)
+library(raster)
 source('~/Current Projects/SBG/LPJ/PFT_downscaling/scripts/paintByPFT.R')
 
 
@@ -31,7 +32,7 @@ lpj.array <- nc_open(file.path(lpj.path, 'lpj-prosail_levelC_DR_Version021_m_202
 # The important raster ----------------------------------------------------
 
 
-pft.raster <- rast(file.path(dp,'MODIS_PFT_Type_5_clean_crop.tif'))
+pft.raster <- raster::raster(file.path(dp,'MODIS_PFT_Type_5_clean_crop.tif'))
 # 
 # r_global <- rast(nrows=20000, ncols=40000,
 #                  ext(-180,180,-90,90),
@@ -63,12 +64,13 @@ lpj.lats <- seq(89.75, -89.75, -0.5)
 
 
 # Continental data --------------------------------------------------------
-
-sPDF <- vect(getMap())
-continents <- na.exclude(unique(sPDF$continent)) 
+continent <- 'North America'
+sPDF <- getMap()
+# continents <- na.exclude(unique(sPDF$continent)) # Options are: Eurasia, Africa, South America, Antarctica, Australia, North America (Antarctica is excluded).
 cont.vect <- sPDF["continent"]
-sub <- cont.vect[cont.vect$continent=='North America', ] # this could be input from the bash script
-pft.raster <- mask(pft.raster, sub)
+sub <-  cont.vect[!is.na(cont.vect$continent),]
+sub <- sub[sub$continent=='North America', ] # this could be input from the bash script
+pft.raster <- rast(raster::mask(pft.raster, sub))
 
 
 # Create NCDF --===---------------------------------------------------------

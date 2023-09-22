@@ -3,6 +3,7 @@ library(terra)
 library(tidyverse)
 library(readr)
 library(rworldmap)
+library(raster)
 source(file.path(Sys.getenv("scriptspath"), 'paintByPFT.R'))
 
 
@@ -30,7 +31,7 @@ lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream
 
 
 # The important raster ----------------------------------------------------
-pft.raster <- rast(file.path(inpath,'MODIS_PFT_Type_5_clean_crop.tif'))
+pft.raster <- raster::raster(file.path(inpath,'MODIS_PFT_Type_5_clean_crop.tif')) #has to be raster on discover...
 
 # Other data --------------------------------------------------------------
 lpj.fpc.array <- max.FPC(list.files(lpjpath, pattern = '_fpc.nc', full.names = T)) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
@@ -41,11 +42,12 @@ lpj.lats <- seq(89.75, -89.75, -0.5)
 
 # Continental data --------------------------------------------------------
 
-sPDF <- vect(getMap())
+sPDF <- getMap()
 # continents <- na.exclude(unique(sPDF$continent)) # Options are: Eurasia, Africa, South America, Antarctica, Australia, North America (Antarctica is excluded).
 cont.vect <- sPDF["continent"]
-sub <- cont.vect[cont.vect$continent==continent, ]
-pft.raster <- mask(pft.raster, sub)
+sub <-  cont.vect[!is.na(cont.vect$continent),]
+sub <- sub[sub]
+pft.raster <- rast(mask(pft.raster, sub))
 
 print("Data read in.")
 
