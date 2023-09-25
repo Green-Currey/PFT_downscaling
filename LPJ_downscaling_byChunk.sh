@@ -1,7 +1,14 @@
 #!/bin/bash
 
-
-
+#......................................................................
+#  E D I T:   S L U R M   A R R A Y   J O B    D E T A I L S
+#......................................................................
+#SBATCH --job-name=Chunk
+#SBATCH --time=01:59:00
+#SBATCH --account=s3673
+# --mail-user brycecurrey93@gmail.com
+# --mail-type=END
+# --mail-type=FAIL
 
 
 module load cdo
