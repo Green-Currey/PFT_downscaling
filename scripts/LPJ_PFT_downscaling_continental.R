@@ -22,7 +22,7 @@ na_val <- -9999
 COMPRESS_LEVEL <- 5
 Year <- Sys.getenv("year")
 in_version <- Sys.getenv("version")
-
+tstart <- Sys.time()
 
 # LPJ Data --------------------------------------------------------------------
 lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream,'_',in_version,'_m_',Year,'.nc'))) %>%
@@ -33,6 +33,11 @@ lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream
 
 # The important raster ----------------------------------------------------
 pft.raster <- raster::raster(file.path(inpath,'MODIS_PFT_Type_5_clean_crop.tif')) #has to be raster on discover...
+
+
+
+
+
 
 # Other data --------------------------------------------------------------
 lpj.fpc.array <- max.FPC(list.files(lpjpath, pattern = '_fpc.nc', full.names = T)) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
@@ -48,10 +53,10 @@ sPDF <- getMap()
 # continents <- na.exclude(unique(sPDF$continent)) # Options are: Eurasia, Africa, South America, Antarctica, Australia, North America (Antarctica is excluded).
 cont.vect <- sPDF["continent"]
 sub <-  cont.vect[!is.na(cont.vect$continent),]
-sub <- sub[sub$continent=='North America', ] # this could be input from the bash script
+sub <- sub[sub$continent==continent, ] # this could be input from the bash script
 pft.raster <- rast(raster::mask(pft.raster, sub))
 
-
+print(Sys.time()-tstart)
 print("Data read in.")
 
 # Create NCDF ---------------------------------------------------------------
