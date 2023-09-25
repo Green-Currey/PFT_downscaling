@@ -15,6 +15,7 @@ outname <- Sys.getenv("outname")
 refl_stream <- Sys.getenv("reflectanceType")
 continent <- Sys.getenv('continent')
 
+print(continent)
 # parameters --------------------------------------------------------------
 wl <- seq(400,2500,10)
 na_val <- -9999

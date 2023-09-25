@@ -13,3 +13,7 @@ for (( i = 0; i < $len; i++ )); do
 
     sbatch $path/execute_LPJ_downscaling_continental.sh
 done
+
+
+
+

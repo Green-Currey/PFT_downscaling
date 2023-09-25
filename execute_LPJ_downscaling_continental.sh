@@ -23,7 +23,7 @@ export chunksize=500    #in km2
 export year=2020
 export reflectanceType="DR"
 export version="LPJ_maxfpc_v2.0"
-export continent='North America'
+export continent=North America
 
 export scriptspath="/discover/nobackup/bcurrey/PFT_downscaling/scripts/"
 export inpath="/discover/nobackup/bcurrey/PFT_downscaling/data/"
