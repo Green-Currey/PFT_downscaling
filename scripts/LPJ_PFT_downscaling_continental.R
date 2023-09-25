@@ -29,7 +29,8 @@ lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream
     ncvar_get(refl_stream) %>%
     aperm(c(2,1,3,4))
 
-
+print('Read in LPJ array')
+print(sys.time()-tstart)
 
 # The important raster ----------------------------------------------------
 pft.raster <- raster::raster(file.path(inpath,'MODIS_PFT_Type_5_clean_crop.tif')) #has to be raster on discover...
@@ -56,8 +57,8 @@ sub <-  cont.vect[!is.na(cont.vect$continent),]
 sub <- sub[sub$continent==continent, ] # this could be input from the bash script
 pft.raster <- rast(raster::mask(pft.raster, sub))
 
-print(Sys.time()-tstart)
 print("Data read in.")
+print(Sys.time()-tstart)
 
 # Create NCDF ---------------------------------------------------------------
 # Create dimensions
@@ -84,8 +85,9 @@ nc_var <- ncvar_def(varname_nc, varUnit,
 
 nc_name <- paste0(outpath, outname)
 nc_out <- nc_create(nc_name, nc_var)
-print('NC created.')
 
+print('NC created.')
+print(Sys.time()-tstart)
 
 # define chunk size ----------------------------------------------
 # Define chunk size
@@ -93,18 +95,9 @@ chunksize = as.numeric(Sys.getenv("chunksize"))
 chunk_size <- c(chunksize, chunksize)
 
 
-# define grid and chunk size ----------------------------------------------
-
-# num_grids <- 100
-# grid <- global.grid(num_grids)
-
-# Define chunk size
-chunk_size <- c(800, 800)
-
 
 # Loop through chunks. ---------------------------------------------------------
 # Loop through rows/lats/dim1 first, then cols/lons/dim2
-t.start <- Sys.time()
 counter <- 0 # start a counter to see how many cells match with LPJ
 ga <- as.array(pft.raster) %>% drop
 
@@ -193,15 +186,8 @@ nc_close(nc_out)
 
 print("NetCDF file created.")
 print('total time:')
-Sys.time()-t.start
+print(Sys.time()-tstart)
 
 print("Percent of spectra directly extracted from LPJ: ")
 print(counter/sum(ga>1, na.rm = T)*100)
 
-# testing output ----------------------------------------------------------
-
-test <- nc_open(nc_name); test;
-test <- test %>% ncvar_get('DR'); dim(test)
-test <- rast(test[,,,7])/10000
-plot(test$lyr.35, main = '740 nm')
-plotRGB(test, r = which(wl==660), g = which(wl==510), b = which(wl==450), stretch = 'lin')
