@@ -30,10 +30,31 @@ lpj.array <- nc_open(file.path(lpj.path, 'lpj-prosail_levelC_DR_Version021_m_202
 
 
 # The important raster ----------------------------------------------------
-
-
 pft.raster <- raster::raster(file.path(dp,'MODIS_PFT_Type_5_clean_crop.tif'))
-# 
+
+
+lons <- seq(ext(pft.raster)[1], ext(pft.raster)[2], length.out = ncol(pft.raster))
+lats <- seq(ext(pft.raster)[4], ext(pft.raster)[3], length.out = nrow(pft.raster))
+lon_dim <- ncdim_def("lon", "degrees_east", lons, longname = 'Longitude')
+lat_dim <- ncdim_def("lat", "degrees_north", lats, longname = 'Latitude')
+
+varInput <- "reflectance_resv_"
+varname_nc <- "PFT_Type"
+varUnit <- "PFT_1-11"
+varLongName <- 'MODIS_PFT_Type_5'
+nc_var <- ncvar_def(varname_nc, varUnit, 
+                    list(lat_dim, lon_dim), na_val, 
+                    longname = varLongName,
+                    compression = COMPRESS_LEVEL,
+                    prec = 'short',
+                    shuffle = T,
+                    chunksize = NA)
+nc_name <- paste0(dp,'MODIS_PFT_Type_5_clean_crop.nc')
+nc_out <- nc_create(nc_name, nc_var)
+
+ncvar_put(nc_out, pft.raster)
+nc_close(nc_out)
+
 # r_global <- rast(nrows=20000, ncols=40000,
 #                  ext(-180,180,-90,90),
 #                  crs=crs("+init=epsg:4326"))
