@@ -57,7 +57,7 @@ num_lat_chunks <- 10
 
 # Create SpatVector of polygons
 grid_polygons <- create_grid_polygons(lon_min, lon_max, lat_min, lat_max, total_lon, total_lat, num_lon_chunks, num_lat_chunks)
-plot(vect(getMap()))
+plot(vect(getMap()), main = 'LPJ-PROSAIL Version 2.2 1km downscaling grid')
 plot(grid_polygons, add = T)
 
 centroids <- centroids(grid_polygons)
