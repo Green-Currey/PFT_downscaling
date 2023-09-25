@@ -174,5 +174,5 @@ print('Total time:')
 print(Sys.time()-t.start)
 
 print("Percent of spectra directly extracted from LPJ: ")
-print(counter/sum(ga>1, na.rm = T)*100)
+print(counter/sum(pft.var>1, na.rm = T)*100)
 
