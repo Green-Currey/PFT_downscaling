@@ -17,7 +17,11 @@
 - _LPJ_PFT_downscaling.R_ -- contains the code that does the looping through each grid cell and writing to the ncdf file.
     - _LPJ_PFT_downscaling_continental.R_ -- same as above but divides the MODIS PFT map into 6 continental files (Eurasia, Africa, South America, Antarctica, Australia, North America). Each is output as a separate NCDF.
     - **NOTE**: This is in development as dividing by continent alters the grid size.
-- _paintByPFT.R_ -- contains all the functions called in the LPJ_PFT_downscaling.R proceedure. 
+- _paintByPFT.R_ -- contains all the functions called in the LPJ_PFT_downscaling.R procedure. 
+
+### lpj-version 2.2 Grid structure
+![lpj-prosail_version022_grid](https://github.com/Green-Currey/PFT_downscaling/assets/57914237/5eb64f82-c113-4553-8488-ad8cc77c30b9)
+
 
 ### More information: 
 - LPJ-PROSAIL data: [Poulter et al., 2023. Simulating Global Dynamic Surface Reflectances for Imaging Spectroscopy Spaceborne Missions: LPJ-PROSAIL](https://onlinelibrary.wiley.com/doi/abs/10.1029/2022JG006935)
