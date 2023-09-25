@@ -30,7 +30,7 @@ lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream
     aperm(c(2,1,3,4))
 
 print('Read in LPJ array')
-print(sys.time()-tstart)
+print(Sys.time()-tstart)
 
 # The important raster ----------------------------------------------------
 pft.raster <- raster::raster(file.path(inpath,'MODIS_PFT_Type_5_clean_crop.tif')) #has to be raster on discover...
