@@ -29,7 +29,7 @@ lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream
 
 
 # The important raster ----------------------------------------------------
-pft.nc <- nc_open(Sys.getenv('MODIS_nc'))
+pft.nc <- nc_open(Sys.getenv('MODIS_NC'))
 pft.var <- ncvar_get(pft.nc, 'PFT')
 
 # Other data --------------------------------------------------------------
@@ -171,7 +171,7 @@ nc_close(nc_out)
 
 print("NetCDF successfully file created.")
 print('Total time:')
-Sys.time()-t.start
+print(Sys.time()-t.start)
 
 print("Percent of spectra directly extracted from LPJ: ")
 print(counter/sum(ga>1, na.rm = T)*100)
