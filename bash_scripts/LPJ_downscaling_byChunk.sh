@@ -80,12 +80,12 @@ for (( ix=1; ix<=$total_lon; ix+=lon_chunk_size )); do
                 echo -e "Skipping chunk $chunk_index because all values are zero."
             else
                 # sbatch execute script.
-                sbatch --job-name="Chunk-$chunk_index"  $dir/execute_LPJ_downscaling_byChunk.sh
+                sbatch --job-name="Chunk-$chunk_index"  $dir/bash_scripts/execute_LPJ_downscaling_byChunk.sh
             fi
         
         else
            
-           sbatch --job-name="Chunk-$chunk_index"  $dir/execute_LPJ_downscaling_byChunk.shi
+           sbatch --job-name="Chunk-$chunk_index"  $dir/bash_scripts/execute_LPJ_downscaling_byChunk.sh
         
         fi
         

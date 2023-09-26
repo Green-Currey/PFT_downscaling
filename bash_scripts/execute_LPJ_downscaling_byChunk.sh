@@ -24,13 +24,13 @@ export version="LPJ_maxfpc_v2.0"
 export MODIS_nc=$MODIS_NC
 export chunk=$chunk_index
 
-export scriptspath="/discover/nobackup/bcurrey/PFT_downscaling/scripts/"
+export scriptspath="/discover/nobackup/bcurrey/PFT_downscaling/R_scripts/"
 export inpath="/discover/nobackup/bcurrey/PFT_downscaling/data/"
 export lpjpath="/discover/nobackup/projects/SBG-DO/bcurrey/global_run_simulations/${rundir}/ncdf_outputs/"
 export outpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/"
 export outname="lpj-prosail_levelC_${reflectanceType}_Version022_1km_m_${year}_${chunk}.nc"
 
 # update: no internal chunking.
-Rscript $scriptspath/LPJ_PFT_downscaling_bychunk2.R
+Rscript $scriptspath/LPJ_PFT_downscaling_bychunk.R
 
 
