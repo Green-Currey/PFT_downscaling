@@ -156,7 +156,7 @@ for (cs in lon_chunks) {
             ncvar_put(nc_out, nc_var, out_array, start, count)
             
             print(paste0("Processed chunk: [", rs, ", ", cs, "] to [", re, ", ", ce, "]"))
-            print(Sys.time()-t.start)
+            print(Sys.time()-t)
             
         } # ...end grid na skip
         

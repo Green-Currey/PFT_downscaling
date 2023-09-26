@@ -30,7 +30,7 @@ export lpjpath="/discover/nobackup/projects/SBG-DO/bcurrey/global_run_simulation
 export outpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/"
 export outname="lpj-prosail_levelC_${reflectanceType}_Version022_1km_m_${year}_${chunk}.nc"
 
-
-Rscript $scriptspath/LPJ_PFT_downscaling_bychunk.R
+# update: no internal chunking.
+Rscript $scriptspath/LPJ_PFT_downscaling_bychunk2.R
 
 

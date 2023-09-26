@@ -63,23 +63,35 @@ for (( ix=1; ix<=$total_lon; ix+=lon_chunk_size )); do
         lat_end=$(( iy + lat_chunk_size - 1 ))
         echo -e "Chunk: [$ix, $lon_end, $iy, $lat_end] [ix, lon_end, iy, lat_end]"
         
-        # Use CDO to select the index box and create the chunk
-        cdo selindexbox,$ix,$lon_end,$iy,$lat_end $datapath/$MODIS_nc ${outpath}/${output}${chunk_index}.nc
-        
         # pass MODIS path to execute_PFT_downscaling_byChunk.sh  
         export MODIS_NC="$outpath/${output}${chunk_index}.nc"
+       
+        # if the chunked modis file already exists, skip to sbatch
+        if [[ ! -f $MODIS_NC ]]; then
+       
+            # Use CDO to select the index box and create the chunk
+            cdo selindexbox,$ix,$lon_end,$iy,$lat_end $datapath/$MODIS_nc ${outpath}/${output}${chunk_index}.nc
+            # Test for no data (all values are zero)
+            max_value=$(cdo output -fldmax $MODIS_NC)
+            echo -e $max_value
+            rm -f $outpath/temp_variable.nc 
 
-        max_value=$(cdo output -fldmax $MODIS_NC)
-        echo -e $max_value
-
-        rm -f $outpath/temp_variable.nc 
-
-        if [[ $max_value -eq 0 ]]; then
-            echo -e "Skipping chunk $chunk_index because all values are zero."
+            if [[ $max_value -eq 0 ]]; then
+                echo -e "Skipping chunk $chunk_index because all values are zero."
+            else
+                # sbatch execute script.
+                sbatch --job-name="Chunk-$chunk_index"  $dir/execute_LPJ_downscaling_byChunk.sh
+            fi
+        
         else
-            # sbatch execute script.
-            sbatch --job-name="Chunk-$chunk_index"  $dir/execute_LPJ_downscaling_byChunk.sh
+           
+           sbatch --job-name="Chunk-$chunk_index"  $dir/execute_LPJ_downscaling_byChunk.shi
+        
         fi
+        
+        # increase chunk_index by 1 
         export chunk_index=$(( chunk_index + 1 ))
     done
 done
+
+
