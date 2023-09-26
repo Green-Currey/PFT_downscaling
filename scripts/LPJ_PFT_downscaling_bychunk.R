@@ -6,6 +6,9 @@ library(readr)
 source(file.path(Sys.getenv("scriptspath"), 'paintByPFT.R'))
 
 
+t.start <- Sys.time()
+print("Beginning downscaling procedure.")
+
 # paths -------------------------------------------------------------------
 lpjpath <- Sys.getenv("lpjpath")
 inpath <- Sys.getenv("inpath")
@@ -58,7 +61,7 @@ varname_nc <- "DR"
 varUnit <- "unitless"
 varLongName <- 'Top-of-Canopy Directional Reflectance'
 nc_var <- ncvar_def(varname_nc, varUnit, 
-                    list(lat_dim, lon_dim, wl_dim, time_dim), na_val, 
+                    list(lon_dim, lat_dim, wl_dim, time_dim), na_val, #x,y,wl,t
                     longname = varLongName,
                     compression = COMPRESS_LEVEL,
                     prec = 'short',
@@ -80,8 +83,6 @@ chunk_size = as.numeric(Sys.getenv("chunksize"))
 
 # Loop through chunks. ---------------------------------------------------------
 # Loop through rows/lats/dim1 first, then cols/lons/dim2
-t.start <- Sys.time()
-print("Beginning downscaling procedure.")
 counter <- 0 # start a counter to see how many cells match with LPJ
 
 
@@ -103,7 +104,7 @@ for (cs in lon_chunks) {
         
         t <- Sys.time()
         # skip if entire cell is NA's
-        if ( sum(chunk==0) < ncell(chunk)-ncell(chunk)*0.01 ) {
+        if ( sum(chunk==0) < ncell(chunk) ) {
             
             out_array <- array(na_val, dim = c(chunk_size, chunk_size, wl_dim$len, time_dim$len))
             
@@ -150,21 +151,36 @@ for (cs in lon_chunks) {
             } # ...end yy loop
             
             #first: rows/dim1/lats; second cols/dim2/lons; third..
-            start = c(rs, cs, 1, 1)
+            start = c(cs, rs, 1, 1)
             count = c(chunk_size, chunk_size, wl_dim$len, time_dim$len) 
             
             ncvar_put(nc_out, nc_var, out_array, start, count)
             
-            print(paste0("Processed chunk: [", rs, ", ", cs, "] to [", re, ", ", ce, "]"))
-            print(Sys.time()-t.start)
+            print(paste0("Processed chunk: [", cs, ", ", rs, "] to [", ce, ", ", re, "]"))
+            print(Sys.time()-t)
             
         } # ...end grid na skip
         
-        print(paste0("Skipped chunk: [", rs, ", ", cs, "] to [", re, ", ", ce, "]"))
+        print(paste0("Skipped chunk: [", cs, ", ", rs, "] to [", ce, ", ", re, "]"))
     } # ...end row/lat loop
 } # ...end col/lon loop
 
+#Assign global attributes
+ncatt_put(global.nc, 0, 'Title', 'LPJ-PROSAIL V022 L2 Global Simulated Dynamic Surface Reflectance')
+ncatt_put(global.nc, 0, "Project_Description", '1 km Resolution Simulating Global Dynamic Surface Reflectances base on the MODIS PFT Type 5 Product')
+ncatt_put(global.nc, 0, "Spatial_Reference", 'WGS84 - World Geodetic System 1984; EPSG:4326')
+ncatt_put(global.nc, 0, 'Spatial_Extent', '-180, 180, -90, 90 (xmin, xmax, ymin, ymax)')
+ncatt_put(global.nc, 0, "Spatial_Resolution", '1 km')
+ncatt_put(global.nc, 0, 'Time_Start', format(lubridate::ymd_hms(paste0(year, '-01-01', '00:00:01')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
+ncatt_put(global.nc, 0, 'Time_End', format(lubridate::ymd_hms(paste0(year, '-12-31', '23:59:59')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
+ncatt_put(global.nc, 0, "Production_Date_Time", print(date()))
+ncatt_put(global.nc, 0, 'Institution', 'National Aeronautics and Space Administration, Goddard Space Flight Center')
+ncatt_put(global.nc, 0, "Contact", 'brycecurrey93@gmail.com')
+ncatt_put(global.nc, 0, 'Citation', 'Poulter, B., et al. (2023). JGR-Biogeosciences. https://doi.org/10.1029/2022JG006935')
+ncatt_put(global.nc, 0, 'More information', 'https://github.com/Green-Currey/PFT_downscaling')
 ncatt_put(nc_out, nc_var, 'scale_factor', 0.0001)
+
+
 
 # Close the NetCDF file
 nc_close(nc_out)
