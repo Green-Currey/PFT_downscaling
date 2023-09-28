@@ -10,6 +10,9 @@
 # --mail-type=END
 # --mail-type=FAIL
 
+# NOTE: This script should be sbatched if MODIS_PFT_Type_5.nc has not already been chunked.
+#       If MODIS_PFT_Type_5.nc is chunked in $outpath, then sh this script.
+
 
 module load cdo
 module load nco
@@ -17,6 +20,7 @@ module load gdal
 
 dir="/discover/nobackup/bcurrey/PFT_downscaling/"
 datapath="$dir/data/"
+scriptspath="$dir/bash_scripts/"
 MODIS_tif="MODIS_PFT_Type_5_clean_crop.tif"
 MODIS_nc="MODIS_PFT_Type_5.nc"
 outpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/chunks/"
@@ -72,6 +76,7 @@ for (( ix=1; ix<=$total_lon; ix+=lon_chunk_size )); do
             # Use CDO to select the index box and create the chunk
             cdo selindexbox,$ix,$lon_end,$iy,$lat_end $datapath/$MODIS_nc ${outpath}/${output}${chunk_index}.nc
             # Test for no data (all values are zero)
+        else
             max_value=$(cdo output -fldmax $MODIS_NC)
             echo -e $max_value
             rm -f $outpath/temp_variable.nc 
@@ -80,12 +85,8 @@ for (( ix=1; ix<=$total_lon; ix+=lon_chunk_size )); do
                 echo -e "Skipping chunk $chunk_index because all values are zero."
             else
                 # sbatch execute script.
-                sbatch --job-name="Chunk-$chunk_index"  $dir/bash_scripts/execute_LPJ_downscaling_byChunk.sh
+                sbatch --job-name="Chunk-$chunk_index"  $scriptspath/execute_LPJ_downscaling_byChunk.sh
             fi
-        
-        else
-           
-           sbatch --job-name="Chunk-$chunk_index"  $dir/bash_scripts/execute_LPJ_downscaling_byChunk.sh
         
         fi
         

@@ -3,7 +3,7 @@
 #......................................................................
 #  E D I T:   S L U R M   A R R A Y   J O B    D E T A I L S
 #......................................................................
-#SBATCH --job-name=Merge
+#SBATCH --job-name=RGB
 #SBATCH --time=02:59:00
 #SBATCH --account=s3673
 # --mail-user brycecurrey93@gmail.com
