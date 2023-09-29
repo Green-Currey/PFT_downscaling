@@ -11,7 +11,7 @@
 # --mail-type=FAIL
 
 # NOTE: This script should be sbatched if MODIS_PFT_Type_5.nc has not already been chunked.
-#       If MODIS_PFT_Type_5.nc is chunked in $outpath, then sh this script.
+#       If MODIS_PFT_Type_5.nc is chunked in $MODISpath, then sh this script.
 
 
 module load cdo
@@ -23,7 +23,7 @@ datapath="$dir/data/"
 scriptspath="$dir/bash_scripts/"
 MODIS_tif="MODIS_PFT_Type_5_clean_crop.tif"
 MODIS_nc="MODIS_PFT_Type_5.nc"
-outpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/chunks/"
+MODISpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/chunks/MODIS"
 varname="PFT"
 # ~~ Modify the MODIS PFT GeoTIF ~~
 # run gdal conversion
@@ -68,18 +68,18 @@ for (( ix=1; ix<=$total_lon; ix+=lon_chunk_size )); do
         echo -e "Chunk: [$ix, $lon_end, $iy, $lat_end] [ix, lon_end, iy, lat_end]"
         
         # pass MODIS path to execute_PFT_downscaling_byChunk.sh  
-        export MODIS_NC="$outpath/${output}${chunk_index}.nc"
+        export MODIS_NC="$MODISpath/${output}${chunk_index}.nc"
        
         # if the chunked modis file already exists, skip to sbatch
         if [[ ! -f $MODIS_NC ]]; then
        
             # Use CDO to select the index box and create the chunk
-            cdo selindexbox,$ix,$lon_end,$iy,$lat_end $datapath/$MODIS_nc ${outpath}/${output}${chunk_index}.nc
+            cdo selindexbox,$ix,$lon_end,$iy,$lat_end $datapath/$MODIS_nc ${MODISpath}/${output}${chunk_index}.nc
             # Test for no data (all values are zero)
         else
             max_value=$(cdo output -fldmax $MODIS_NC)
             echo -e $max_value
-            rm -f $outpath/temp_variable.nc 
+            rm -f $MODISpath/temp_variable.nc 
 
             if [[ $max_value -eq 0 ]]; then
                 echo -e "Skipping chunk $chunk_index because all values are zero."

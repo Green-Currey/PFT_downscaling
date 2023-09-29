@@ -166,7 +166,7 @@ for (cs in lon_chunks) {
 } # ...end col/lon loop
 
 #Assign global attributes
-ncatt_put(nc_out, 0, 'Title', 'LPJ-PROSAIL V022 L2 Global Simulated Dynamic Surface Reflectance')
+ncatt_put(nc_out, 0, 'Title', 'LPJ-PROSAIL V003 L2 Global Simulated Dynamic Surface Reflectance')
 ncatt_put(nc_out, 0, "Project_Description", '1 km Resolution Simulating Global Dynamic Surface Reflectances base on the MODIS PFT Type 5 Product')
 ncatt_put(nc_out, 0, "Spatial_Reference", 'WGS84 - World Geodetic System 1984; EPSG:4326')
 ncatt_put(nc_out, 0, 'Spatial_Extent', '-180, 180, -90, 90 (xmin, xmax, ymin, ymax)')
