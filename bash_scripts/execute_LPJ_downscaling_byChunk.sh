@@ -6,9 +6,9 @@
 #SBATCH --job-name=PFT
 #SBATCH --time=05:59:00
 #SBATCH --account=s3673
-# # --mail-user brycecurrey93@gmail.com
-# # --mail-type=END
-# # --mail-type=FAIL
+# #SBATCH --mail-user brycecurrey93@gmail.com
+# #SBATCH --mail-type=END
+# #SBATCH --mail-type=FAIL
 
 # This script executes the paint.by.PFT() function by way of LPJ_PFT_downscaling.R 
 
@@ -27,8 +27,8 @@ export chunk=$chunk_index
 export scriptspath="/discover/nobackup/bcurrey/PFT_downscaling/R_scripts/"
 export inpath="/discover/nobackup/bcurrey/PFT_downscaling/data/"
 export lpjpath="/discover/nobackup/projects/SBG-DO/bcurrey/global_run_simulations/${rundir}/ncdf_outputs/"
-export outpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/"
-export outname="lpj-prosail_levelC_${reflectanceType}_Version022_1km_m_${year}_${chunk}.nc"
+export outpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/chunks/"
+export outname="lpj-prosail_levelC_${reflectanceType}_Version003_1km_m_${year}_${chunk}.nc"
 
 # update: no internal chunking.
 Rscript $scriptspath/LPJ_PFT_downscaling_bychunk.R

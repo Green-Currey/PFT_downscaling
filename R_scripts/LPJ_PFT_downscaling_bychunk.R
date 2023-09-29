@@ -166,18 +166,18 @@ for (cs in lon_chunks) {
 } # ...end col/lon loop
 
 #Assign global attributes
-ncatt_put(global.nc, 0, 'Title', 'LPJ-PROSAIL V022 L2 Global Simulated Dynamic Surface Reflectance')
-ncatt_put(global.nc, 0, "Project_Description", '1 km Resolution Simulating Global Dynamic Surface Reflectances base on the MODIS PFT Type 5 Product')
-ncatt_put(global.nc, 0, "Spatial_Reference", 'WGS84 - World Geodetic System 1984; EPSG:4326')
-ncatt_put(global.nc, 0, 'Spatial_Extent', '-180, 180, -90, 90 (xmin, xmax, ymin, ymax)')
-ncatt_put(global.nc, 0, "Spatial_Resolution", '1 km')
-ncatt_put(global.nc, 0, 'Time_Start', format(lubridate::ymd_hms(paste0(year, '-01-01', '00:00:01')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
-ncatt_put(global.nc, 0, 'Time_End', format(lubridate::ymd_hms(paste0(year, '-12-31', '23:59:59')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
-ncatt_put(global.nc, 0, "Production_Date_Time", print(date()))
-ncatt_put(global.nc, 0, 'Institution', 'National Aeronautics and Space Administration, Goddard Space Flight Center')
-ncatt_put(global.nc, 0, "Contact", 'brycecurrey93@gmail.com')
-ncatt_put(global.nc, 0, 'Citation', 'Poulter, B., et al. (2023). JGR-Biogeosciences. https://doi.org/10.1029/2022JG006935')
-ncatt_put(global.nc, 0, 'More information', 'https://github.com/Green-Currey/PFT_downscaling')
+ncatt_put(nc_out, 0, 'Title', 'LPJ-PROSAIL V003 L2 Global Simulated Dynamic Surface Reflectance')
+ncatt_put(nc_out, 0, "Project_Description", '1 km Resolution Simulating Global Dynamic Surface Reflectances base on the MODIS PFT Type 5 Product')
+ncatt_put(nc_out, 0, "Spatial_Reference", 'WGS84 - World Geodetic System 1984; EPSG:4326')
+ncatt_put(nc_out, 0, 'Spatial_Extent', '-180, 180, -90, 90 (xmin, xmax, ymin, ymax)')
+ncatt_put(nc_out, 0, "Spatial_Resolution", '1 km')
+ncatt_put(nc_out, 0, 'Time_Start', format(lubridate::ymd_hms(paste0(Year, '-01-01', '00:00:01')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
+ncatt_put(nc_out, 0, 'Time_End', format(lubridate::ymd_hms(paste0(Year, '-12-31', '23:59:59')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
+ncatt_put(nc_out, 0, "Production_Date_Time", print(date()))
+ncatt_put(nc_out, 0, 'Institution', 'National Aeronautics and Space Administration, Goddard Space Flight Center')
+ncatt_put(nc_out, 0, "Contact", 'brycecurrey93@gmail.com')
+ncatt_put(nc_out, 0, 'Citation', 'Poulter, B., et al. (2023). JGR-Biogeosciences. https://doi.org/10.1029/2022JG006935')
+ncatt_put(nc_out, 0, 'More information', 'https://github.com/Green-Currey/PFT_downscaling')
 ncatt_put(nc_out, nc_var, 'scale_factor', 0.0001)
 
 

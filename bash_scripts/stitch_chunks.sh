@@ -6,14 +6,18 @@
 #SBATCH --job-name=Merge
 #SBATCH --time=05:59:00
 #SBATCH --account=s3673
-# --mail-user brycecurrey93@gmail.com
-# --mail-type=ALL
+#SBATCH --mail-user brycecurrey93@gmail.com
+#SBATCH --mail-type=ALL
 
 module load cdo
+
+inpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/chunks/"
 outpath="/discover/nobackup/projects/SBG-DO/bcurrey/PFT_downscaling/outputs/"
 
-cdo merge $outpath/lpj-prosail_levelC_DR_Version022_1km_m_2020_*.nc $outath/lpj-prosail_levelC_DR_Version022_1km_m_2020.nc
-
+# The CDO_PCTL_SIZE=small reduces the verbosity of cdo outputs and suppresses the appending of history information.
+export CDO_PCTL_SIZE=small
+cdo merge $inpath/lpj-prosail_levelC_DR_Version003_1km_m_2020_*.nc $outpath/lpj-prosail_levelC_DR_Version003_1km_m_2020.nc
+unset CDO_PCTL_SIZE
 
 
 
