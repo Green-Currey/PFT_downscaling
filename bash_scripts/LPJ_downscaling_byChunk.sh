@@ -75,18 +75,19 @@ for (( ix=1; ix<=$total_lon; ix+=lon_chunk_size )); do
        
             # Use CDO to select the index box and create the chunk
             cdo selindexbox,$ix,$lon_end,$iy,$lat_end $datapath/$MODIS_nc ${MODISpath}/${output}${chunk_index}.nc
+            sbatch --job-name="Chunk-$chunk_index"  $scriptspath/execute_LPJ_downscaling_byChunk.sh
             # Test for no data (all values are zero)
         else
-            max_value=$(cdo output -fldmax $MODIS_NC)
-            echo -e $max_value
-            rm -f $MODISpath/temp_variable.nc 
+#            max_value=$(cdo output -fldmax $MODIS_NC)
+#            echo -e $max_value
+#            rm -f $MODISpath/temp_variable.nc 
 
-            if [[ $max_value -eq 0 ]]; then
-                echo -e "Skipping chunk $chunk_index because all values are zero."
-            else
+#            if [[ $max_value -eq 0 ]]; then
+#                echo -e "Skipping chunk $chunk_index because all values are zero."
+#            else
                 # sbatch execute script.
                 sbatch --job-name="Chunk-$chunk_index"  $scriptspath/execute_LPJ_downscaling_byChunk.sh
-            fi
+#            fi
         
         fi
         

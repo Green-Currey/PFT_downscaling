@@ -144,8 +144,6 @@ for (cs in lon_chunks) {
                         out_array[xx,yy,,] <- PBP$spectra
                         counter <- counter + PBP$count
 
-                        # out_array[1:dim(out_array)[1],1:dim(out_array)[2],,] <- chunk
-
                     } # ...end chunk NA skip
                 } # ...end xx loop
             } # ...end yy loop

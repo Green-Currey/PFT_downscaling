@@ -26,12 +26,7 @@ for (( chunk = 1; chunk <= 100; chunk++ )); do
      echo -e $in_nc
 done
 
-# The CDO_PCTL_SIZE=small reduces the verbosity of cdo outputs and suppresses the appending of history information.
-export CDO_PCTL_SIZE=small
-cdo merge $outpath/lpj-prosail_levelC_DR_RGB_1km_m_2020_*.nc $outpath/lpj-prosail_levelC_DR_RGB_1km_m7_2020.nc
-unset CDO_PCTL_SIZE
-# convert to geotif
-
+# combine RGB test
 
 
 
