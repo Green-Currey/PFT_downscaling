@@ -1,3 +1,4 @@
+0. Update 100 regions diagram title.
 1. MODIS Shurb PFT is represented by LPJ C3 grass - the realism of this should be investigated.
 2. For the LUT that gets called when the MODIS and LPJ PFT's do not align, it would be good to have high-latitude and low-latitude representatives for all PFTs that get mixed with snow/soil, particularly the C3 PFT.
 3. Outputting reflectance by PFT (instead of mixing and taking the average or not mixing and exporting the maximum) could be beneficial and reduce the amount the LUT is used.
