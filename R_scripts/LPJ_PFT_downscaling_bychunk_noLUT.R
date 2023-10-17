@@ -1,46 +1,51 @@
 # Load the ncdf4 package
-source('~/R/clean.R')
 library(ncdf4)
 library(terra)
 library(tidyverse)
 library(readr)
-library(rworldmap)
-source('~/Current Projects/SBG/LPJ/PFT_downscaling/R_scripts/paintByPFT.R')
+source(file.path(Sys.getenv("scriptspath"), 'paintByPFT.R'))
+
+
+t.start <- Sys.time()
+print("Beginning downscaling procedure.")
 
 # paths -------------------------------------------------------------------
-lpj.path <- file.path('~/Current Projects/SBG/LPJ/Reflectance_Data/version2/')
-dp <- '~/Current Projects/SBG/LPJ/PFT_downscaling/data/'
-
+lpjpath <- Sys.getenv("lpjpath")
+inpath <- Sys.getenv("inpath")
+outpath <- Sys.getenv("outpath")
+outname <- Sys.getenv("outname")
+refl_stream <- Sys.getenv("reflectanceType")
 
 # parameters --------------------------------------------------------------
 wl <- seq(400,2500,10)
 na_val <- -9999
 COMPRESS_LEVEL <- 5
+Year <- Sys.getenv("year")
+in_version <- Sys.getenv("version")
 
-# Data --------------------------------------------------------------------
 
-lpj.array <- nc_open(file.path(lpj.path, 'lpj-prosail_levelC_DR_Version021_m_2020.nc')) %>%
-    ncvar_get('DR') %>%
+# LPJ Data --------------------------------------------------------------------
+lpj.array <- nc_open(file.path(lpjpath, paste0('lpj-prosail_levelC_',refl_stream,'_',in_version,'_m_',Year,'.nc'))) %>%
+    ncvar_get(refl_stream) %>%
     aperm(c(2,1,3,4))
 
 
-
 # The important raster ----------------------------------------------------
-pft.nc <- nc_open(file.path(dp,'MODIS_PFT_Type_5_13.nc'))
+pft.nc <- nc_open(Sys.getenv('MODIS_NC'))
 pft.var <- ncvar_get(pft.nc, 'PFT')
 
-
 # Other data --------------------------------------------------------------
-# c3c4.raster <- rast(file.path(dp, 'Osborne_C3C4_raster_1km.tif'))
-lpj.fpc.array <- max.FPC(list.files(dp, pattern = '*_fpc.nc', full.names = T)) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
+lpj.fpc.array <- max.FPC(list.files(lpjpath, pattern = '_fpc.nc', full.names = T)) %>% aperm(c(2,1))       # function that extracts max FPC from FPC output.
 lpj.fpc.array[is.na(lpj.fpc.array)] <- 0
-# lut.array <- nc_open(file.path(dp, 'LPJ_monthly_PFT_reflectance_LUT.nc')) %>% ncvar_get('LUT')
-snow.mat <- read_csv(file.path(dp, 'snow_matrix.csv'))
-sand.mat <- read_csv(file.path(dp, 'sand_matrix.csv'))
-urban.mat <- read_csv(file.path(dp, 'urban_matrix.csv'))
+# c3c4.raster <- rast(file.path(inpath, 'Osborne_C3C4_raster_1km.tif'))
+# lut.array <- nc_open(file.path(inpath, 'LPJ_monthly_PFT_reflectance_LUT.nc')) %>% ncvar_get('LUT')
+snow.mat <- read_csv(file.path(inpath, 'snow_matrix.csv'))
+sand.mat <- read_csv(file.path(inpath, 'sand_matrix.csv'))
+urban.mat <- read_csv(file.path(inpath, 'urban_matrix.csv'))
 lpj.lons <- seq(-179.75, 179.75, 0.5)
 lpj.lats <- seq(89.75, -89.75, -0.5)
 
+print("Data read in.")
 
 
 # Create NCDF ---------------------------------------------------------------
@@ -66,26 +71,23 @@ nc_var <- ncvar_def(varname_nc, varUnit,
                     shuffle = T,
                     chunksize = NA)
 
-nc_name <- paste0(dp, 'test2.nc')
+nc_name <- paste0(outpath, outname)
 nc_out <- nc_create(nc_name, nc_var)
 print('NC created.')
 
 
 
-# define grid and chunk size ----------------------------------------------
-
-# num_grids <- 100
-# grid <- global.grid(num_grids)
-
+# define chunk size ----------------------------------------------
 # Define chunk size
-chunk_size <- 500
+chunk_size = as.numeric(Sys.getenv("chunksize"))
+# chunk_size <- c(chunksize, chunksize)
+
 
 
 # Loop through chunks. ---------------------------------------------------------
 # Loop through rows/lats/dim1 first, then cols/lons/dim2
-t.start <- Sys.time()
-print("Beginning downscaling procedure.")
 counter <- 0 # start a counter to see how many cells match with LPJ
+
 
 lon_chunks <- seq(1, dim(pft.var)[1], by = chunk_size)
 lat_chunks <- seq(1, dim(pft.var)[2], by = chunk_size)
@@ -112,7 +114,7 @@ for (cs in lon_chunks) {
             # Inner-chunk: 
             # looping through cols/lons/dim2 first, then rows/lats/dim1
             # Switches to prevent recalculating latitude
-            for( yy in seq(chunk_size) ) {                                   # yy = row index of chunk on chunk scale
+            for( yy in seq(chunk_size[1]) ) {                                     # yy = row index of chunk on chunk scale
                 rowy <- rs+yy-1                                                 # rowy = index of chunk on input scale
                 match.lat.lpj <- which(round.to.lpj(lats[rowy])==lpj.lats)      # match.lat.lpj = index of chunk on lpj scale
                 latitude <- lats[rowy]
@@ -122,23 +124,18 @@ for (cs in lon_chunks) {
                     match.lon.lpj <- which(round.to.lpj(lons[colx])==lpj.lons)  # match.lon.lpj = index of chunk on lpj scale
                     
                     modis.pft.index <- chunk[xx, yy]
-                    if (modis.pft.index != 0 ) {
+                    if ( modis.pft.index!=0 ) {
                         
-                        # grass.index <- c3c4.raster[rowy, colx] only used in LUT method
+                        # grass.index <- c3c4.raster[rowy, colx]
                         lpj.pft.index <- lpj.fpc.array[match.lat.lpj, match.lon.lpj]
                         
                         PBP <- paint.by.pft_noLUT(match.lat = match.lat.lpj, match.lon = match.lon.lpj, 
-                                            modis.pft = modis.pft.index, lpj.pft = lpj.pft.index, 
-                                            lat = latitude, lpj = lpj.array, fpc.array = lpj.fpc.array,
-                                            snow = snow.mat, urban = urban.mat, barren = sand.mat)
+                                                  modis.pft = modis.pft.index, lpj.pft = lpj.pft.index, 
+                                                  lpj = lpj.array, fpc.array = lpj.fpc.array,
+                                                  snow = snow.mat, urban = urban.mat, barren = sand.mat)
                         
-                        # PBP <- paint.by.pft(match.lat = match.lat.lpj, match.lon = match.lon.lpj, 
-                        #                     modis.pft = modis.pft.index, lpj.pft = lpj.pft.index, grass.pft = grass.index, 
-                        #                     lat = latitude, lpj = lpj.array, lut = lut.array)
                         out_array[xx,yy,,] <- PBP$spectra
                         counter <- counter + PBP$count
-                        
-                        # out_array[1:dim(out_array)[1],1:dim(out_array)[2],,] <- chunk
                         
                     } # ...end chunk NA skip
                 } # ...end xx loop
@@ -159,23 +156,31 @@ for (cs in lon_chunks) {
     } # ...end row/lat loop
 } # ...end col/lon loop
 
+
+#Assign global attributes
+ncatt_put(nc_out, 0, 'Title', 'LPJ-PROSAIL V003 L2 Global Simulated Dynamic Surface Reflectance')
+ncatt_put(nc_out, 0, "Project_Description", '1 km Resolution Simulating Global Dynamic Surface Reflectances base on the MODIS PFT Type 5 Product')
+ncatt_put(nc_out, 0, "Spatial_Reference", 'WGS84 - World Geodetic System 1984; EPSG:4326')
+ncatt_put(nc_out, 0, 'Spatial_Extent', '-180, 180, -90, 90 (xmin, xmax, ymin, ymax)')
+ncatt_put(nc_out, 0, "Spatial_Resolution", '1 km')
+ncatt_put(nc_out, 0, 'Time_Start', format(lubridate::ymd_hms(paste0(Year, '-01-01', '00:00:01')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
+ncatt_put(nc_out, 0, 'Time_End', format(lubridate::ymd_hms(paste0(Year, '-12-31', '23:59:59')), format = "%Y-%m-%dT%H:%M:%OS3Z"))
+ncatt_put(nc_out, 0, "Production_Date_Time", print(date()))
+ncatt_put(nc_out, 0, 'Institution', 'National Aeronautics and Space Administration, Goddard Space Flight Center')
+ncatt_put(nc_out, 0, "Contact", 'brycecurrey93@gmail.com')
+ncatt_put(nc_out, 0, 'Citation', 'Poulter, B., et al. (2023). JGR-Biogeosciences. https://doi.org/10.1029/2022JG006935')
+ncatt_put(nc_out, 0, 'More information', 'https://github.com/Green-Currey/PFT_downscaling')
 ncatt_put(nc_out, nc_var, 'scale_factor', 0.0001)
+
+
 
 # Close the NetCDF file
 nc_close(nc_out)
 
 print("NetCDF successfully file created.")
 print('Total time:')
-Sys.time()-t.start
+print(Sys.time()-t.start)
 
 print("Percent of spectra directly extracted from LPJ: ")
 print(counter/sum(pft.var>1, na.rm = T)*100)
 
-
-# testing output ----------------------------------------------------------
-
-test <- nc_open(nc_name); test;
-test <- test %>% ncvar_get('DR', start=c(1,1,30,7), count = c(4000,2000, 1, 1)); dim(test)
-test <- plot(t(rast(test)))
-plot(test$lyr.35, main = '740 nm')
-plotRGB(test, r = which(wl==660), g = which(wl==510), b = which(wl==450), stretch = 'lin')

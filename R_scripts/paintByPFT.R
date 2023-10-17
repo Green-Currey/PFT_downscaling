@@ -8,7 +8,10 @@ paint.by.pft <- function(match.lat, match.lon, modis.pft, lpj.pft, grass.pft, la
     # lat <- latitude
     # lpj <- lpj.array
     # lut <- lut.array
-
+    # wl.dim = 211
+    # na.val = -9999
+    # to.int = 10000
+    # 
     pft <- paste0('PFT', modis.pft)
     lpj.i <- 0
     switch(pft,
@@ -116,16 +119,244 @@ paint.by.pft <- function(match.lat, match.lon, modis.pft, lpj.pft, grass.pft, la
     return( list(spectra = out, count = lpj.i) )
 } # end function
 
+
+paint.by.pft_noLUT <- function(match.lat, match.lon, modis.pft, lpj.pft, lpj, fpc.array, snow, barren, urban,
+                               to.int = 10000) {
+    
+    # modis.pft <- modis.pft.index
+    # match.lat <- match.lat.lpj
+    # match.lon <- match.lon.lpj
+    # lpj.pft <- lpj.pft.index
+    # # grass.pft <- grass.index
+    # lat <- latitude
+    # lpj <- lpj.array
+    # snow <- snow
+    # barren <- sand
+    # urban <- urban
+    # fpc.array <- lpj.fpc.array
+    # to.int = 10000
+    
+    pft <- paste0('PFT', modis.pft)
+    lpj.i <- 0
+    
+    switch(pft,
+           # 1 = evergreen needleleaf
+           PFT1 = {
+
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 6 & lpj.pft != 3) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 6 || lpj.pft == 3) { break }
+                       }
+                       
+                       if (lpj.pft == 6 || lpj.pft == 3) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+           },
+           
+           # 2 - evergreen broadleaf
+           PFT2 = {
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 1 & lpj.pft != 4) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 1 || lpj.pft == 4) { break }
+                       }
+                       
+                       if (lpj.pft == 1 || lpj.pft == 4) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+           },
+           
+           # 3 - deciduous needleleaf
+           PFT3 = {
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 8) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 8) { break }
+                       }
+                       
+                       if (lpj.pft == 8) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+           },
+           
+           # 4 - deciduous broadleaf
+           PFT4 = {
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 2 & lpj.pft != 5) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 2 || lpj.pft == 5) { break }
+                       }
+                       
+                       if (lpj.pft == 2 || lpj.pft == 5) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+           },
+           
+           # 5 - shrub
+           PFT5 = {
+               
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 9) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 9) { break }
+                       }
+                       
+                       if (lpj.pft == 9) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+               
+           },
+           
+           # 6 - grass
+           PFT6 = {
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 9 & lpj.pft != 10) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 9 || lpj.pft == 10) { break }
+                       }
+                       
+                       if (lpj.pft == 9 || lpj.pft == 10) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+           },
+           
+           # 7 - cereal crop
+           PFT7 = {
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 9 & lpj.pft != 10) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 9 || lpj.pft == 10) { break }
+                       }
+                       
+                       if (lpj.pft == 9 || lpj.pft == 10) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+           },
+           
+           # 8 - broadleaf crop
+           PFT8 = {
+               # if no match, loop through all lons, then lats
+               if (lpj.pft != 9 & lpj.pft != 10) {
+                   all.lon <-  c(seq(match.lon, 720), seq(1,match.lon-1))
+                   all.lat <- c(seq(match.lat, 360), seq(1,match.lat-1))
+                   for (c.lat in all.lat) {
+                       for (c.lon in all.lon) {
+                           lpj.pft <- fpc.array[c.lat, c.lon]
+                           if (lpj.pft == 9 || lpj.pft == 10) { break }
+                       }
+                       
+                       if (lpj.pft == 9 || lpj.pft == 10) {
+                           out <- lpj[c.lat, c.lon,,]*to.int
+                           break 
+                       }
+                   }
+                   # if a match, extract spectra
+               } else {
+                   out <- lpj[match.lat, match.lon,,]*to.int
+                   lpj.i <- lpj.i+1
+               }
+           },
+           
+           # Urban - should be removed
+           PFT9 = { out <- as.matrix(urban, nrow = 211, ncol = 12)*to.int },
+           
+           # 10 - snow
+           PFT10 = { out <- as.matrix(snow, nrow = 211, ncol = 12)*to.int },
+           
+           # 11 - barren
+           PFT11 = { out <- as.matrix(barren, nrow = 211, ncol = 12)*to.int }
+    ) # end switch
+    return( list(spectra = out, count = lpj.i) )
+} # end function
+
 c3c4.switch <- function(c3c4.val, lat, lut, na.val = -9999, wl.dim = 211, time.dim = 12, to.int = 10000) {
     if (is.na(c3c4.val)) {c3c4.val <- 3}
     switch(as.integer(c3c4.val),
            { out <- lut[9,,]*to.int },
            { out <- lut[10,,]*to.int },
            { if (lat > 30 || lat < -26) {
-                   out <- lut[9,,]*to.int
-               } else {
-                   out <- lut[10,,]*to.int
-               }
+               out <- lut[9,,]*to.int
+           } else {
+               out <- lut[10,,]*to.int
+           }
            }
     )
     return(out)
@@ -161,7 +392,7 @@ max.FPC <- function(fpc.nc) {
     lat <- nc %>% ncvar_get('lat')
     
     fpc <- fpc[,,,dim(fpc)[4]]
-
+    
     max_fpc <- array(-9999, dim = c(dim(fpc)[1], dim(fpc)[2]))
     for (i in lon) {
         for (j in lat) {
