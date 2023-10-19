@@ -42,7 +42,7 @@
 - _RGB_display.sh_ -- This script extracts the RGB bands for a given month for each chunk NetCDF and stitches them together, similar to _stitch_chunks.sh_.
 
 ### lpj-version 3 Grid structure
-![lpj-prosail_version022_grid](https://github.com/Green-Currey/PFT_downscaling/assets/57914237/5eb64f82-c113-4553-8488-ad8cc77c30b9)
+![lpj-prosail_version003_grid](https://github.com/Green-Currey/PFT_downscaling/assets/57914237/033fe5ff-35ff-4e10-bdcf-592ea100b80d)
 
 
 ### More information: 
